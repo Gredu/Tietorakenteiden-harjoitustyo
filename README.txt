@@ -4,7 +4,7 @@ Tiedosto ja koodikielenä englanti, mutta dokumentaatioon suomea!
 
 
 ONGELMA
-Ongelma on tuttu Anno nimisessä pelissä, jossa on rakennettava mahdollisimman optimaalisesti Rakennuksina ovat varastot ja tuotantolaitos, jolla voi olla myös alirakennuksia. Nämä alirakennukset voidaan rakentaa vain tietyn matkan päähän omasta tuotantolaitoksestaan. Ainoastaan tuotantolaitokseen on oltava tie varastosta. Kulmiin rakennettu tie ei yhdistä laitoksia toisiinsa.
+Ongelma on tuttu Anno nimisessä pelissä, missä on rakennettava mahdollisimman optimaalisesti. Rakennuksina ovat varastot ja tuotantolaitokset. Tuotantolaitoksilla voi olla myös alirakenneuksia, jotka on kaikki rakennettava kyseisen tuotantolaitoksen läheisyyteen. Ainoastaan tuotantolaitokseen on oltava tie varastosta. Kulmiin rakennettu tie ei yhdistä laitoksia toisiinsa. Kuinka voidaan rakentaa tehokkaasti siten, että matkaa on mahdollisimman vähän tuotantolaitoksista varastoihin?
 
 
 TAVOITTEET
@@ -12,11 +12,19 @@ Tarkoitus ei ole täydellisesti simuloida pelimaailmaa, koska rakennuksia on val
 
 
 BONUKSET
-Jos aikaa ja innostusta riittää, lisätään alirakennuksia tuotantolaitoksille ja annetaan käyttäjälle mahdollisuus määrätä myös varastojen määrä. Varastojen määrä voi lisätä kohtuuttomasti laskentaa, koska näiden sijainti toisiinsa nähden lisää erilaisia mahdollisuuksia. Myös hyvän optimoinnin määrittely voidaan tehdä paremmaksi. Nythän hyvä on perusteltu teiden määrällä, mutta siihen vaikuttaa myös etäisyys. Voidaan rakentaa kahden palan tie yhteen suuntaan ja sen varrelle neljä tuotantolaitosta, mutta voidaan myös rakentaa varastosta yksi pala jokaiseen eri suuntaan ja niiden varrelle tuotantolaitokset:
+Jos aikaa ja innostusta riittää, lisätään alirakennuksia tuotantolaitoksille ja annetaan käyttäjälle mahdollisuus määrätä myös varastojen määrä. Varastojen määrä voi lisätä kohtuuttomasti laskentaa, koska näiden sijainti toisiinsa nähden lisää erilaisia mahdollisuuksia. 
+
+
+--------------------------------------------------------------------------------
+RAPORTIT
+
+
+1601
+Esimerkki  pelimaailmasta:
 
 V = varasto
 -, | = tie
-1, 2, 3, 4 = tuotantolaitos
+1, 2, 3, 4 = erilaisia tuotantolaitoksia
         
     VVVV11
     VVVV1144
@@ -24,7 +32,7 @@ V = varasto
        2233
        2233
 
-parempi olisi:
+mutta huomataan, että parempi olisi:
 
      44 33
      44|33
@@ -34,8 +42,8 @@ parempi olisi:
      22|11
      22 11
 
-koska nyt jokaisella laitoksella on oikeasti yksi askel matkaa varastolle, kun taas edellisessä tuotantovarastolla 3 ja 4 on kahden palan matka. Tätä ajatusta voidaan oikeastaan käyttää optimointiin, että jos lasketaan matkattavan tien yhteismäärä, lopetetaan niiden mahdollisuuksien laskeminen, jotka tuottavat tuotantolaitoksille pitempiä reittejä silloinkin vaikka tiepaljoa on yhtä paljon. Ensimmäisessä tiessä on laitoksesta mahdollisia reittejä matkaa 1 ja 2, ja yhteensä 3, kun taas viimeisessä esimerkissä on mahdollisia matkoja vain 1 ja 1, eli yhteensä 2. Tällöin algoritmin pitäis hylätä ensimmäinen esimerkki ja tarjota viimeisintä.
+koska nyt jokaisella laitoksella on oikeasti yksi askel matkaa varastolle, kun taas edellisessä tuotantovarastolla 3 ja 4 on kahden palan matka. Matkojen pituutta ei voidakaan laskea teiden määrästä, vaan askelten määrästä miten paljon tuotantolaitoksilta kestää aikaa tuoda valmis tuote varastoon. Ensimmäisessä esimerkissä ensimmäisestä tiestä, joka rakennettiin varastosta, on matkaa yksi askel, mutta ensimmäistä tietä jatkavalla seuraavalla tiepalalla on jo kahden askeleen matka. Jos on löydetty jo joku tie, voidaan olla käymättä sellaisia vaihtoehtoja läpi, jotka tuottavat enemmän askelia.
 
+Parasta olisi lähteä tien rakentamisella ja antaa jokaiselle tielle painoarvo miten pitkä matka kyseisestä tiepalasta on varastolle. Kun sopiva rakennus löytyy, ei enää jatketa ratkaisun löytämistä niissä vaihtoehdoissa, joissa teiden painoarvojen summa on korkeampi kuin jo löydetty ratkaisu. Tallennetaan vain ratkaisu, jossa on pienin mahdollinen painoarvo tai jossa painoarvo on sama, koska voi olla kiintoisaa nähdä myös muita ratkaisuja.
 
-ONGELMAN RATKAISU
-Luultavasti paras olisi lähteä tien rakentamisesta. Ensin kokeilla yhdellä tiellä kaikki mahdollisuudet ja jokaiselle niille kokeillaan onko tuotantolaitoksia mahdollista rakentaa teiden varrelle. Kun mahdollisuus löytyy jatketaan erilaisten mahdollisuuksien kokeilemista vain sillä tiemäärällä. Isoimmista tiemääristä ei olla kiinnostuneita. Jos alirakennukset ovat mukana, kokeillaan saadaanko kaikki alirakennukset rakennettua, jos ei, niin hylätään ratkaisu. Tällä menetelmällä ei tarvita polkualgoritmeja, vaikka aluksi vaaikuttikin siltä, että ongelma nojaisi vahvasti niihin. Polkualgoritmia tarvitaan vain silloin, kun lasketaan polun pituutta myöhempää optimointia varten.
+Jos alirakennukset otetaan mukaan se aiheuttaa uuden ehdon. Kaikkien alirakennukset on rakennettava, mutta jos jos se ei ole mahdollista - eli tilaa ei ole - hylätään ratkaisuehdotus. Alirakennukset luovat taas uuden kokeilupuun.
